@@ -1,15 +1,20 @@
 import {Client} from "@typeit/discord";
 import { Intents } from "discord.js";
-import * as token from "./config/token.json";
+
+import dotenv from "dotenv";
 
 export class main {
     private static _client: Client;
+
 
     static get Client(): Client {
         return this._client;
     }
 
     static start() {
+        dotenv.config({path: "../.env"});
+        let token = process.env["token"];
+
         this._client = new Client({
             intents: [
                 Intents.FLAGS.GUILDS,
@@ -36,7 +41,7 @@ export class main {
         });
 
          this._client.login(
-            token.token
+            token
         );
     }
 }

@@ -12,6 +12,7 @@
   "dependencies": {
     "@typeit/discord": "^5.0.13",
     "discord.js": "github:discordjs/discord.js",
+    "dotenv": "^10.0.0",
     "node": "^16.1.0",
     "reflect-metadata": "^0.1.13"
   },
