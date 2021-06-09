@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.main = void 0;
 const discord_1 = require("@typeit/discord");
 const discord_js_1 = require("discord.js");
+const token = require("./config/token.json");
 class main {
     static get Client() {
         return this._client;
@@ -29,7 +30,7 @@ class main {
         this._client.on("interaction", (interaction) => {
             this._client.executeSlash(interaction).catch((err) => console.error(err));
         });
-        this._client.login(`ODUxODQyNDcyMjE1NTc2Njc3.YL-KHw.C6ZZ_7i_UMpjbF3wn84QZOAZASg`);
+        this._client.login(token.token);
     }
 }
 exports.main = main;

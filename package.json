@@ -10,8 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@typeit/discord": "^X.X.X",
+    "@typeit/discord": "^5.0.13",
     "discord.js": "github:discordjs/discord.js",
+    "node": "^16.1.0",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {

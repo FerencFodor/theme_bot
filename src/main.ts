@@ -1,6 +1,6 @@
 import {Client} from "@typeit/discord";
 import { Intents } from "discord.js";
-import * as config from "./config/config.json";
+import * as token from "./config/token.json";
 
 export class main {
     private static _client: Client;
@@ -36,7 +36,7 @@ export class main {
         });
 
          this._client.login(
-            config.token
+            token.token
         );
     }
 }
