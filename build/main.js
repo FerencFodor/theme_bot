@@ -3,12 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.main = void 0;
 const discord_1 = require("@typeit/discord");
 const discord_js_1 = require("discord.js");
-const token = require("./config/token.json");
+const dotenv = require("dotenv");
 class main {
     static get Client() {
         return this._client;
     }
     static start() {
+        dotenv.config();
         this._client = new discord_1.Client({
             intents: [
                 discord_js_1.Intents.FLAGS.GUILDS,
@@ -30,7 +31,7 @@ class main {
         this._client.on("interaction", (interaction) => {
             this._client.executeSlash(interaction).catch((err) => console.error(err));
         });
-        this._client.login(token.token);
+        this._client.login(process.env.token);
     }
 }
 exports.main = main;
