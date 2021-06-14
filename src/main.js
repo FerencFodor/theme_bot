@@ -35,11 +35,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-exports.__esModule = true;
-exports.main = void 0;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports._conn = void 0;
 var discord_1 = require("@typeit/discord");
 var discord_js_1 = require("discord.js");
-var token = require("./config/token.json");
+var dotenv_1 = require("dotenv");
+var path_1 = require("path");
+var typeorm_1 = require("typeorm");
+dotenv_1.config({ path: path_1.join(process.cwd(), '.env') });
 var main = /** @class */ (function () {
     function main() {
     }
@@ -51,44 +54,65 @@ var main = /** @class */ (function () {
         configurable: true
     });
     main.start = function () {
-        var _this = this;
-        this._client = new discord_1.Client({
-            intents: [
-                discord_js_1.Intents.FLAGS.GUILDS,
-                discord_js_1.Intents.FLAGS.GUILD_MESSAGES
-            ],
-            slashGuilds: ["851872708781146154", "741533650176442370"],
-            classes: [
-                __dirname + "/discords/*.ts",
-                __dirname + "/discords/*.js"
-            ],
-            silent: false
-        });
-        this._client.once("ready", function () { return __awaiter(_this, void 0, void 0, function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this._client.clearSlashes()];
+                    case 0:
+                        this._client = new discord_1.Client({
+                            intents: [
+                                discord_js_1.Intents.FLAGS.GUILDS,
+                                discord_js_1.Intents.FLAGS.GUILD_MESSAGES
+                            ],
+                            slashGuilds: [
+                                "851872708781146154",
+                                //"741533650176442370"
+                            ],
+                            classes: [
+                                __dirname + "/discords/*.ts",
+                                __dirname + "/discords/*.js"
+                            ],
+                            silent: false,
+                        });
+                        this._client.once('ready', function () { return __awaiter(_this, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, this._client.clearSlashes()];
+                                    case 1:
+                                        _a.sent();
+                                        return [4 /*yield*/, this._client.clearSlashes("851872708781146154")];
+                                    case 2:
+                                        _a.sent();
+                                        //await this._client.clearSlashes("741533650176442370")
+                                        return [4 /*yield*/, this._client.initSlashes()];
+                                    case 3:
+                                        //await this._client.clearSlashes("741533650176442370")
+                                        _a.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                        this._client.on('interaction', function (interaction) {
+                            _this._client.executeSlash(interaction).catch(function (err) { return console.error(err); });
+                        });
+                        return [4 /*yield*/, typeorm_1.createConnection({
+                                name: 'test_local',
+                                type: 'postgres',
+                                host: 'localhost',
+                                port: 5432,
+                                username: 'postgres',
+                                password: '5525ght',
+                                database: 'test_local',
+                                entities: [__dirname + '/entity/*.ts']
+                            })];
                     case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this._client.clearSlashes("851872708781146154")];
-                    case 2:
-                        _a.sent();
-                        return [4 /*yield*/, this._client.clearSlashes("741533650176442370")];
-                    case 3:
-                        _a.sent();
-                        return [4 /*yield*/, this._client.initSlashes()];
-                    case 4:
-                        _a.sent();
+                        exports._conn = _a.sent();
+                        this._client.login(process.env.token);
                         return [2 /*return*/];
                 }
             });
-        }); });
-        this._client.on("interaction", function (interaction) {
-            _this._client.executeSlash(interaction)["catch"](function (err) { return console.error(err); });
         });
-        this._client.login(token.token);
     };
     return main;
 }());
-exports.main = main;
 main.start();
