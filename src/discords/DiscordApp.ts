@@ -1,10 +1,10 @@
-import {Discord, Group, Guard, Option, Slash} from '@typeit/discord';
-import {CommandInteraction, MessageEmbed} from 'discord.js';
-import { toTitleCase } from '../support';
+import {Discord, Group, /*Guard,*/ Option, Slash} from '@typeit/discord';
+import {CommandInteraction} from 'discord.js';
+import {checkPermission, toTitleCase} from '../support';
 import {randomInt} from 'crypto';
 import {Theme} from '../entity/theme';
 import {getConnection} from 'typeorm';
-import {Admin} from '../guard/admin';
+//import {Admin} from '../guard/admin';
 
 @Discord()
 @Group('themes')
@@ -32,8 +32,12 @@ abstract class DiscordApp {
     }
 
 	@Slash('select')
-	@Guard(Admin)
-    async generate(@Option('count', {description: 'how many themes should it select'}) count: number, interaction: CommandInteraction) {count = count > 0 ? count : 3;
+	//@Guard(Admin)
+    async generate(@Option('count', {description: 'how many themes should it select'}) count: number, interaction: CommandInteraction) {
+
+    	if(!checkPermission(interaction))
+            return;
+
         count = count > 0 ? count : 3;
 
         const themes: Theme[] = await getConnection().getRepository(Theme).find();
@@ -49,26 +53,34 @@ abstract class DiscordApp {
     }
 
     @Slash('list')
-    @Guard(Admin)
-	async listThemes(interaction: CommandInteraction){
+    //@Guard(Admin)
+	async listThemes(@Option('page', {description: 'show the pages content, min. 1'}) page: number,
+	    interaction: CommandInteraction){
 
-    	const themes = await getConnection()
+    	if(!checkPermission(interaction))
+    		return;
+
+    	const [themes, count] = await getConnection()
 		    .getRepository(Theme)
-		    .find();
+		    .findAndCount();
 
-    	const embed = new MessageEmbed()
-		    .setColor('#00ebd9')
-		    .setTitle('List of Themes');
+    	const totalPages = Math.ceil(count/10);
 
-    	embed.setDescription(themes.map(value => {return value.theme;}).join('\n'));
+	    page = page > 0 ? page : 1;
+	    page = page > totalPages ? totalPages: page;
 
-    	await interaction.reply(`${embed}`);
+    	const list: Theme[] = themes.slice(10*(page-1), (10)*page -1);
+
+    	await interaction.reply(list.map(value => {return value.theme;}).join('\n') + `\n*[${page}/${totalPages}]*`);
 	}
 
     @Slash('remove')
-    @Guard(Admin)
+    //@Guard(Admin)
     async remove(@Option('theme', {description: 'theme that will be removed', required: true}) text: string,
 	    interaction: CommandInteraction){
+
+	    if(!checkPermission(interaction))
+		    return;
 
 	    text = toTitleCase(text);
 
