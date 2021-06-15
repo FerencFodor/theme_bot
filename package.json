@@ -2,7 +2,7 @@
   "name": "theme_bot",
   "version": "1.0.0",
   "description": "",
-  "main": "main.ts",
+  "main": "build/main.js",
   "scripts": {
     "start:dev": "nodemon",
     "start": "node build/main.js",
