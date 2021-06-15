@@ -1,5 +1,5 @@
 import {Discord, Group, Guard, Option, Slash} from '@typeit/discord';
-import { CommandInteraction} from 'discord.js';
+import {CommandInteraction, MessageEmbed} from 'discord.js';
 import { toTitleCase } from '../support';
 import {randomInt} from 'crypto';
 import {Theme} from '../entity/theme';
@@ -48,9 +48,26 @@ abstract class DiscordApp {
         }).join(', ')}`);
     }
 
+    @Slash('list')
+    @Guard(Admin)
+	async listThemes(interaction: CommandInteraction){
+
+    	const themes = await getConnection()
+		    .getRepository(Theme)
+		    .find();
+
+    	const embed = new MessageEmbed()
+		    .setColor('#00ebd9')
+		    .setTitle('List of Themes');
+
+    	embed.setDescription(themes.map(value => {return value.theme;}).join('\n'));
+
+    	await interaction.reply(`${embed}`);
+	}
+
     @Slash('remove')
     @Guard(Admin)
-	async remove(@Option('theme', {description: 'theme that will be removed', required: true}) text: string,
+    async remove(@Option('theme', {description: 'theme that will be removed', required: true}) text: string,
 	    interaction: CommandInteraction){
 
 	    text = toTitleCase(text);
@@ -68,5 +85,5 @@ abstract class DiscordApp {
 	    } else {
 	        await interaction.reply('Theme does not exists.');
 	    }
-	}
+    }
 }
