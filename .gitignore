@@ -3,3 +3,8 @@ node_modules/
 ./themes.txt
 .env
 /build/
+/.eslintrc.json
+/src/discords/DiscordApp.js
+/package-lock.json
+/src/support.js
+/src/entity/theme.js
