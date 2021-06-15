@@ -1,75 +1,64 @@
-import {Client} from "@typeit/discord";
-import { Intents } from "discord.js";
-import { config } from "dotenv";
-import { join } from "path";
-import { createConnection, Connection } from "typeorm";
-import Theme from './entity/theme';
+import { config } from 'dotenv';
+import { join } from 'path';
+import { Client } from '@typeit/discord';
+import {Constants, Intents} from 'discord.js';
+import { guilds } from './config/config.json';
+import {createConnection} from 'typeorm';
 
-config({path: join(process.cwd(), '.env')});
-
+config({ path: join(process.cwd(), '.env') });
 
 abstract class main {
+	private static _client: Client;
 
-    private static _client: Client;
+	static async start() {
+	    //create connections
+	    this._client = new Client({
+	        intents:[
+	            Intents.FLAGS.GUILDS,
+	            Intents.FLAGS.GUILD_MESSAGES
+	        ],
+	        slashGuilds: [
+	            guilds[0],
+	            guilds[1]
+	        ],
+	        classes: [
+	            `${__dirname}/discords/*.ts`,
+	            `${__dirname}/discords/*.js`
+	        ],
+	        silent: false
+	    });
 
-    static get Client(): Client {
-        return this._client;
-    }
+	    this._client.once(Constants.Events.CLIENT_READY, async ()=>{
+	        await this._client.clearSlashes();
+	        await this._client.clearSlashes(guilds[0]);
+	        await this._client.clearSlashes(guilds[1]);
+	        await this._client.initSlashes();
+	    });
 
-    static async start() {
+	    this._client.on(Constants.Events.INTERACTION_CREATE, (interaction)=>{
+	        this._client.executeSlash(interaction).catch((err) => console.error(err));
+	    });
 
-        this._client = new Client({
-            intents: [
-                Intents.FLAGS.GUILDS,
-                Intents.FLAGS.GUILD_MESSAGES
-            ],
-            slashGuilds: [
-                "851872708781146154",
-                "741533650176442370"
-            ],
-            classes: [
-                `${__dirname}/discords/*.ts`,
-                `${__dirname}/discords/*.js`
-            ],
-            silent: false,
-        });
+	    await createConnection({
+	        type: 'postgres',
+	        url: process.env.DATABASE_URL,
+	        ssl: {
+	            rejectUnauthorized: false
+	        },
+	        synchronize: true,
+	        logging: true,
+	        entities: [
+	            `${__dirname}/entity/*.ts`,
+	            `${__dirname}/entity/*.js`
+	        ]
+	    });
 
-
-        this._client.once('ready', async () => {
-            await this._client.clearSlashes();
-            await this._client.clearSlashes("851872708781146154");
-            await this._client.clearSlashes("741533650176442370")
-            await this._client.initSlashes();
-        });
-
-        this._client.on('interaction', (interaction) => {
-            this._client.executeSlash(interaction).catch((err) => console.error(err));
-        });
-
-        _conn = await createConnection({
-            type: "postgres",
-            url: process.env.DATABASE_URL,
-            ssl:{
-                rejectUnauthorized:false
-            },
-            synchronize: true,
-            logging: true,
-            entities: [
-                "build/entity/*.js",
-                "src/entity/*.ts"
-            ]
-        });
-
-        this._client.login(
-            process.env.token
-        );
-    }
+	    await this._client.login(
+	        process.env.token
+	    );
+	}
 }
 
-export let _conn: Connection;
-
-
-main.start();
-
-
-
+main.start()
+    .then(() => console.log('log in complete'))
+    .catch((err) => console.error(err));

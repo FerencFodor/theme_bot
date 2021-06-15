@@ -1,24 +1,24 @@
-import { Discord, Group, Option, Permission, Slash } from "@typeit/discord";
-import { CommandInteraction, GuildMember } from "discord.js";
-import { checkPermission, toTitleCase } from "./support";
-import * as config from "../config/config.json";
-import {randomInt} from "crypto";
-import * as fs from 'fs';
-import Theme from "../entity/theme";
-import {getConnection, getRepository} from 'typeorm';
+import {Discord, Group, Guard, Option, Slash} from '@typeit/discord';
+import { CommandInteraction} from 'discord.js';
+import { toTitleCase } from '../support';
+import {randomInt} from 'crypto';
+import {Theme} from '../entity/theme';
+import {getConnection} from 'typeorm';
+import {Admin} from '../guard/admin';
 
 @Discord()
-@Group("themes")
+@Group('themes')
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 abstract class DiscordApp {
 
-    @Slash("add")
-    async addTheme(@Option("theme", {description: "theme you want to submit", required: true})text: string,
-                interaction: CommandInteraction){
+    @Slash('add')
+    async addTheme(@Option('theme', {description: 'theme you want to submit', required: true})text: string,
+        interaction: CommandInteraction){
 
         text = toTitleCase(text);
         const exists = await getConnection()
             .createQueryBuilder(Theme, 'themes')
-            .where("themes.theme = :theme", {theme: text})
+            .where('themes.theme = :theme', {theme: text})
             .getOne();
 
         if(exists){
@@ -28,62 +28,45 @@ abstract class DiscordApp {
         const setTheme = await Theme.create({theme: text});
         await getConnection().getRepository(Theme).save(setTheme);
         console.dir(setTheme);
-        interaction.reply(`Thank you for submitting the theme: ${text}!`);
+        await interaction.reply(`Thank you for submitting the theme: ${text}!`);
     }
 
+	@Slash('select')
+	@Guard(Admin)
+    async generate(@Option('count', {description: 'how many themes should it select'}) count: number, interaction: CommandInteraction) {count = count > 0 ? count : 3;
+        count = count > 0 ? count : 3;
 
-    @Slash("generate")
-    @Permission(config.admins[0], "ROLE")
-    @Permission(config.admins[1], "ROLE")
-    async generate(@Option("max", {description: "how many items should it show"}) x: number,
-             interaction: CommandInteraction){
+        const themes: Theme[] = await getConnection().getRepository(Theme).find();
 
-        if(!checkPermission(interaction))
-            return;
-
-        x = x > 0 ? x : 3;
-
-        const _themes: Theme[] = await getConnection().getRepository(Theme).find();
-        let listTheme: string[] = [];
-
-        for(let i: number = 0; i < _themes.length; i++){
-            listTheme.push(_themes[i].theme);
+        while (themes.length > count) {
+            const randomIndex = randomInt(themes.length);
+            themes.splice(randomIndex, 1);
         }
 
-        if(listTheme.length > x){
-            while (listTheme.length > x) {
-                let randomIndex = randomInt(listTheme.length-1);
-                listTheme.splice(randomIndex,1);
-            }
-        }
-
-        interaction.reply(`I have chosen: ${listTheme.join(", ")}`);
+        await interaction.reply(`The chosen themes are: ${themes.map(value => {
+            return value.theme;
+        }).join(', ')}`);
     }
 
-    @Permission(config.admins[0], "ROLE")
-    @Permission(config.admins[1], "ROLE")
-    @Slash("remove")
-    async remove(@Option("theme", {description: "theme that you want to remove", required: true}) text: string,
-           interaction: CommandInteraction){
+    @Slash('remove')
+    @Guard(Admin)
+	async remove(@Option('theme', {description: 'theme that will be removed', required: true}) text: string,
+	    interaction: CommandInteraction){
 
-        if(!checkPermission(interaction))
-            return;
+	    text = toTitleCase(text);
 
-        text = toTitleCase(text);
+	    const exists = await getConnection()
+	        .getRepository(Theme)
+	        .findOne({theme: text});
 
+	    if(exists){
+	        await getConnection()
+	            .getRepository(Theme)
+	            .delete({theme: text});
 
-        const exist = await getConnection()
-            .createQueryBuilder(Theme, "themes")
-            .delete()
-            .from(Theme, 'themes')
-            .where('theme = :theme', {theme: text})
-            .execute();
-
-
-        if(exist){
-            interaction.reply(`Theme ${text} has been removed`);
-        } else {
-            interaction.reply('Theme did not exists');
-        }
-    }
+	        await interaction.reply(`Theme ${text} has been removed.`);
+	    } else {
+	        await interaction.reply('Theme does not exists.');
+	    }
+	}
 }

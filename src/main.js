@@ -66,7 +66,7 @@ var main = /** @class */ (function () {
                             ],
                             slashGuilds: [
                                 "851872708781146154",
-                                //"741533650176442370"
+                                "741533650176442370"
                             ],
                             classes: [
                                 __dirname + "/discords/*.ts",
@@ -83,10 +83,11 @@ var main = /** @class */ (function () {
                                         return [4 /*yield*/, this._client.clearSlashes("851872708781146154")];
                                     case 2:
                                         _a.sent();
-                                        //await this._client.clearSlashes("741533650176442370")
-                                        return [4 /*yield*/, this._client.initSlashes()];
+                                        return [4 /*yield*/, this._client.clearSlashes("741533650176442370")];
                                     case 3:
-                                        //await this._client.clearSlashes("741533650176442370")
+                                        _a.sent();
+                                        return [4 /*yield*/, this._client.initSlashes()];
+                                    case 4:
                                         _a.sent();
                                         return [2 /*return*/];
                                 }
@@ -96,14 +97,17 @@ var main = /** @class */ (function () {
                             _this._client.executeSlash(interaction).catch(function (err) { return console.error(err); });
                         });
                         return [4 /*yield*/, typeorm_1.createConnection({
-                                name: 'test_local',
-                                type: 'postgres',
-                                host: 'localhost',
-                                port: 5432,
-                                username: 'postgres',
-                                password: '5525ght',
-                                database: 'test_local',
-                                entities: [__dirname + '/entity/*.ts']
+                                type: "postgres",
+                                url: process.env.DATABASE_URL,
+                                ssl: {
+                                    rejectUnauthorized: false
+                                },
+                                synchronize: true,
+                                logging: true,
+                                entities: [
+                                    "build/entity/*.js",
+                                    "src/entity/*.ts"
+                                ]
                             })];
                     case 1:
                         exports._conn = _a.sent();
