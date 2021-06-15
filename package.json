@@ -5,7 +5,7 @@
   "main": "build/main.js",
   "scripts": {
     "start:dev": "nodemon",
-    "start": "node build/main.js",
+    "start": "ts-node src/main.ts",
     "build": "tsc",
     "postinstall": "npm run build"
   },
