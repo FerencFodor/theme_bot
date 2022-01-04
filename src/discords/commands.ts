@@ -52,7 +52,7 @@ export abstract class DiscordApp {
           .createQueryBuilder()
           .select('theme')
           .from(Theme, 'themes')
-          .orderBy('RANDOM()')
+          .orderBy('RAND()')
           .limit(count)
           .getMany();
 
