@@ -3,21 +3,15 @@ import { join } from 'path';
 import { Client } from 'discordx';
 import { importx } from '@discordx/importer';
 import { Constants, Intents } from 'discord.js';
-import {Connection, createConnection} from 'typeorm';
+import {createConnection} from 'typeorm';
 
 config({ path: join(process.cwd(), '.env') });
 
 abstract class Main {
     private static _client: Client;
 
-    private static _conn: Connection;
-
     static get Client(): Client {
         return this._client;
-    }
-
-    static get Connection(): Connection {
-        return this._conn;
     }
 
     static async start(): Promise<void> {
@@ -44,7 +38,7 @@ abstract class Main {
             this._client.executeInteraction(interaction);
         });
 
-        this._conn = await createConnection({
+        await createConnection({
             type: 'postgres',
             url: process.env.DATABASE_URL,
             ssl: {
