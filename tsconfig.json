@@ -1,29 +1,26 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "ES6",
-        "noImplicitAny": false,
+        "module": "ESNext",
+        "target": "ESNext",
+        "noImplicitAny": true,
         "sourceMap": true,
+        "strict": true,
+        "strictNullChecks": true,
+        "rootDir": "src",
         "outDir": "build",
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
+        "declaration": true,
         "importHelpers": true,
         "forceConsistentCasingInFileNames": true,
-        "lib": ["es2017", "esnext.asynciterable"],
-        "moduleResolution": "node",
+        "lib": ["es2018", "esnext.asynciterable"],
+        "moduleResolution": "Node",
+        "esModuleInterop": true,
         "resolveJsonModule": true,
         "skipLibCheck": true
     },
-    "include": [
-        "src/main.ts",
-        "src/entity/theme.ts",
-        "src/discords/DiscordApp.ts",
-	  "src/support.ts",
-        "src/config/config.json"
-    ],
     "exclude": [
         "node_modules",
-        "./node_modules",
-        "./node_modules/*"
+        "build"
     ]
 }
