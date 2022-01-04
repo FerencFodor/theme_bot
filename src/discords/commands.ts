@@ -50,9 +50,7 @@ export abstract class DiscordApp {
       count = nullOrZero(count, 3);
 
       const themes: Theme[] = await getConnection()
-          .createQueryBuilder()
-          .select('theme')
-          .from(Theme, 'themes')
+          .createQueryBuilder(Theme, 'themes')
           .getMany();
 
       while (themes.length > count) {
