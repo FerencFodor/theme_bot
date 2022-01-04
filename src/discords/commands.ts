@@ -4,6 +4,7 @@ import { nullOrZero, toTitleCase } from '../common';
 import { getConnection, Repository } from 'typeorm';
 import { Theme } from '../entities/theme';
 import { permissions }  from '../configs/config.json';
+import {randomInt} from 'crypto';
 
 @Discord()
 @SlashGroup('theme', 'themes related commands')
@@ -52,9 +53,12 @@ export abstract class DiscordApp {
           .createQueryBuilder()
           .select('theme')
           .from(Theme, 'themes')
-          .orderBy('RAND()')
-          .limit(count)
           .getMany();
+
+      while (themes.length > count) {
+          const index = randomInt(0, themes.length);
+          themes.splice(index, 1);
+      }
 
       await interaction.reply(
           `The chosen themes are: **${themes
