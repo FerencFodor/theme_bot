@@ -36,8 +36,10 @@ export abstract class DiscordApp {
     }
 
   @Permission(false)
-  @Permission({ id: permissions[0].id, type: 'ROLE', permission: true })
-  @Permission({ id: permissions[1].id, type: 'ROLE', permission: true })
+  @Permission([
+      {id: permissions[1].id, type: 'ROLE', permission: true},
+      {id: permissions[0].id, type: 'ROLE', permission: true}
+  ])
   @Slash('select')
   async selectTheme(
     @SlashOption('count', {
@@ -68,8 +70,10 @@ export abstract class DiscordApp {
   }
 
   @Permission(false)
-  @Permission({ id: permissions[0].id, type: 'ROLE', permission: true })
-  @Permission({ id: permissions[1].id, type: 'ROLE', permission: true })
+  @Permission([
+      {id: permissions[1].id, type: 'ROLE', permission: true},
+      {id: permissions[0].id, type: 'ROLE', permission: true}
+  ])
   @Slash('list')
   async listTheme(
     @SlashOption('page', {
@@ -97,8 +101,10 @@ export abstract class DiscordApp {
   }
 
   @Permission(false)
-  @Permission({ id: permissions[0].id, type: 'ROLE', permission: true })
-  @Permission({ id: permissions[1].id, type: 'ROLE', permission: true })
+  @Permission([
+      {id: permissions[1].id, type: 'ROLE', permission: true},
+      {id: permissions[0].id, type: 'ROLE', permission: true}
+  ])
   @Slash('remove')
   async removeTheme(
     @SlashOption('theme', { description: 'theme that will be removed' })
