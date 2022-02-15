@@ -11,7 +11,6 @@ import {randomInt} from 'crypto';
 export abstract class DiscordApp {
 
   @Slash('add')
-  @SlashGroup({name: 'theme'})
     async addTheme(
     @SlashOption('theme', { description: 'theme you want to submit' })
         text: string,
