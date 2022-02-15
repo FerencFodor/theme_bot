@@ -7,9 +7,11 @@ import { permissions }  from '../configs/config.json';
 import {randomInt} from 'crypto';
 
 @Discord()
-@SlashGroup('theme', 'themes related commands')
+
 export abstract class DiscordApp {
+
   @Slash('add')
+  @SlashGroup({name: 'theme'})
     async addTheme(
     @SlashOption('theme', { description: 'theme you want to submit' })
         text: string,
