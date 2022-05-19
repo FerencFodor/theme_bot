@@ -1,64 +1,59 @@
 import { config } from 'dotenv';
 import { join } from 'path';
-import { Client } from '@typeit/discord';
-import {Constants, Intents} from 'discord.js';
-import { guilds } from './config/config.json';
+import { Client } from 'discordx';
+import { importx } from '@discordx/importer';
+import { Constants, Intents } from 'discord.js';
 import {createConnection} from 'typeorm';
 
 config({ path: join(process.cwd(), '.env') });
 
-abstract class main {
-	private static _client: Client;
+abstract class Main {
+    private static _client: Client;
 
-	static async start() {
-	    //create connections
-	    this._client = new Client({
-	        intents:[
-	            Intents.FLAGS.GUILDS,
-	            Intents.FLAGS.GUILD_MESSAGES
-	        ],
-	        slashGuilds: [
-	            guilds[0],
-	            guilds[1]
-	        ],
-	        classes: [
-	            `${__dirname}/discords/*.ts`,
-	            `${__dirname}/discords/*.js`
-	        ],
-	        silent: false
-	    });
+    static get Client(): Client {
+        return this._client;
+    }
 
-	    this._client.once(Constants.Events.CLIENT_READY, async ()=>{
-	        await this._client.clearSlashes();
-	        await this._client.clearSlashes(guilds[0]);
-	        await this._client.clearSlashes(guilds[1]);
-	        await this._client.initSlashes();
-	    });
+    static async start(): Promise<void> {
+        this._client = new Client({
+            botGuilds: [(client) => client.guilds.cache.map((guild) => guild.id)],
+            intents: [
+                Intents.FLAGS.GUILDS,
+                Intents.FLAGS.GUILD_MESSAGES,
+                Intents.FLAGS.GUILD_MEMBERS,
+            ],
+        });
 
-	    this._client.on(Constants.Events.INTERACTION_CREATE, (interaction)=>{
-	        this._client.executeSlash(interaction).catch((err) => console.error(err));
-	    });
+        this._client.once(Constants.Events.CLIENT_READY, async () => {
+            await this._client.initApplicationCommands({
+                global: { log: true },
+                guild: { log: true },
+            });
+            await this._client.initApplicationPermissions(true);
 
-	    await createConnection({
-	        type: 'postgres',
-	        url: process.env.DATABASE_URL,
-	        ssl: {
-	            rejectUnauthorized: false
-	        },
-	        synchronize: true,
-	        logging: true,
-	        entities: [
-	            `${__dirname}/entity/*.ts`,
-	            `${__dirname}/entity/*.js`
-	        ]
-	    });
+            console.log('[+] Bot Initialized');
+        });
 
-	    await this._client.login(
-	        process.env.token
-	    );
-	}
+        this._client.on(Constants.Events.INTERACTION_CREATE, (interaction) => {
+            this._client.executeInteraction(interaction);
+        });
+
+        await createConnection({
+            type: 'postgres',
+            url: process.env.DATABASE_URL,
+            ssl: {
+                rejectUnauthorized: false,
+            },
+            synchronize: true,
+            logging: true,
+            entities: [`${__dirname}/entities/*.ts`, `${__dirname}/entities/*.js`],
+        });
+
+        await importx(__dirname + '/discords/*.{js,ts}');
+        await this._client.login(process.env.token ?? '');
+    }
 }
 
-main.start()
-    .then(() => console.log('log in complete'))
+Main.start()
+    .then(() => console.log('[+] Login Complete'))
     .catch((err) => console.error(err));
