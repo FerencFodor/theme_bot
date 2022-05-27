@@ -1,23 +1,23 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "ES6",
+        "module": "ESNext", // required
+        "target": "ESNext", // required
         "rootDir": "src",
         "outDir": "build",
 
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true, // required
+        "experimentalDecorators": true, // required,
 
         "noImplicitAny": false,
-        "sourceMap": true,
+        "sourceMap": false,
 
-        "lib": ["es2018", "esnext.asynciterable"],
-        "moduleResolution": "Node",
-        "resolveJsonModule": true,
-        "skipLibCheck": true
+        "strict": true,
+        "declaration": false,
+        "importHelpers": true, // required
+        "forceConsistentCasingInFileNames": true,
+        "moduleResolution": "Node", // required
+        "esModuleInterop": true, // required
+        "strictPropertyInitialization": false
     },
-    "exclude": [
-        "node_modules",
-        "build"
-    ]
+    "exclude": ["node_modules","build"]
 }

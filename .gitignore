@@ -5,13 +5,12 @@ node_modules
 build
 /.eslintrc.js
 /.eslintignore
-/src/discords/themeCommands.js
+/src/command/themeCommands.js
 /package-lock.json
 /src/common.js
-/src/entities/theme.js
+/src/entity/theme.js
 
-
-
+nodemon.json
 
 .DS_Store
 .docusaurus
@@ -33,3 +32,5 @@ docs/docs/api
 docs/docs/api2
 docs/docs/api3
 docs/typedoc-sidebar.js
+
+/.eslintrc.cjs

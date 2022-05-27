@@ -1,0 +1,10 @@
+.vscode
+.env
+.env.local
+package-lock.json
+yarn.lock
+CHANGELOG.md
+
+.turbo
+build
+node_modules
