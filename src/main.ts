@@ -1,59 +1,48 @@
-import { config } from 'dotenv';
-import { join } from 'path';
-import { Client } from 'discordx';
-import { importx } from '@discordx/importer';
-import { Constants, Intents } from 'discord.js';
-import {createConnection} from 'typeorm';
+import "reflect-metadata";
 
-config({ path: join(process.cwd(), '.env') });
+import { dirname, importx } from "@discordx/importer";
+import type { Interaction } from "discord.js";
+import { Constants, Intents } from "discord.js";
+import { Client } from "discordx";
+import dotenv from "dotenv";
 
-abstract class Main {
-    private static _client: Client;
+import { AppSourceData } from "./source_data.js";
 
-    static get Client(): Client {
-        return this._client;
-    }
+dotenv.config();
 
-    static async start(): Promise<void> {
-        this._client = new Client({
-            botGuilds: [(client) => client.guilds.cache.map((guild) => guild.id)],
-            intents: [
-                Intents.FLAGS.GUILDS,
-                Intents.FLAGS.GUILD_MESSAGES,
-                Intents.FLAGS.GUILD_MEMBERS,
-            ],
-        });
+export const bot: Client = new Client({
+  botGuilds: [(client) => client.guilds.cache.map((guild) => guild.id)],
 
-        this._client.once(Constants.Events.CLIENT_READY, async () => {
-            await this._client.initApplicationCommands({
-                global: { log: true },
-                guild: { log: true },
-            });
-            await this._client.initApplicationPermissions(true);
+  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
 
-            console.log('[+] Bot Initialized');
-        });
+  silent: false,
+});
 
-        this._client.on(Constants.Events.INTERACTION_CREATE, (interaction) => {
-            this._client.executeInteraction(interaction);
-        });
+bot.once(Constants.Events.CLIENT_READY, async () => {
+  await bot.guilds.fetch();
+  await bot.clearApplicationCommands();
+  await bot.initApplicationCommands();
+  await bot.initApplicationPermissions();
 
-        await createConnection({
-            type: 'postgres',
-            url: process.env.DATABASE_URL,
-            ssl: {
-                rejectUnauthorized: false,
-            },
-            synchronize: true,
-            logging: true,
-            entities: [`${__dirname}/entities/*.ts`, `${__dirname}/entities/*.js`],
-        });
+  console.log("[+] Bot Started");
+});
 
-        await importx(__dirname + '/discords/*.{js,ts}');
-        await this._client.login(process.env.token ?? '');
-    }
+bot.on(Constants.Events.INTERACTION_CREATE, (interaction: Interaction) => {
+  bot.executeInteraction(interaction);
+});
+
+async function run() {
+  await importx(dirname(import.meta.url) + "/{event,command}/**/*.{ts,js}");
+
+  if (!process.env.TOKEN) {
+    throw Error("Could not find TOKEN in your environment");
+  }
+
+  await AppSourceData.initialize();
+
+  await bot.login(process.env.TOKEN);
 }
 
-Main.start()
-    .then(() => console.log('[+] Login Complete'))
-    .catch((err) => console.error(err));
+run()
+  .then(() => console.log("[+]Bot running"))
+  .catch((err) => console.error(err));
