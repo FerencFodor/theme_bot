@@ -49,3 +49,25 @@ export function getPageIndex(
   page = page <= 0 ? 1 : page > max ? max : page;
   return 1 + (page - 1) * divide;
 }
+
+export function validateInput(input: string): string {
+  if (input.trim().length <= 0) {
+    throw Error("Text missing!");
+  }
+  if (input == null || input == undefined) {
+    throw Error("Undefined or null value!");
+  }
+
+  return input.toTitleCase();
+}
+
+export function validateNumber(input: number): number {
+  if (input < 0) {
+    throw Error("Number Out of Bound!");
+  }
+  if (input == undefined) {
+    input = 1;
+  }
+
+  return input;
+}

@@ -13,7 +13,7 @@ export const NotAdmin: GuardFunction<CommandInteraction> = async (
     return next();
   }
   await interaction.reply({
-    ephemeral: true,
     content: "You do not have the permissions to use this command!",
+    ephemeral: true,
   });
 };
